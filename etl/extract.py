@@ -8,6 +8,8 @@ def fetch_prices(symbol, period="1mo"):
     """Download daily price bars for one stock and return them as a pandas DataFrame."""
     ticker = yf.Ticker(symbol)
     df = ticker.history(period=period, auto_adjust=False)
+    if df.empty:
+        raise ValueError(f"No price data returned for '{symbol}'. It may be misspelled or delisted.")
     return df
 
 
