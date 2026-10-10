@@ -51,3 +51,7 @@ docker exec -it market-pg psql -U postgres
 ```
 
 The test script runs inside a transaction and rolls back at the end, so it leaves no test data behind.
+
+## Known data quirks
+
+- **Dividend-only rows:** when a dividend falls just before the requested period, yfinance can return an extra row for that date with null prices and zero volume. The `missing_values` check rejects these rows and logs them to `data_quality_log`, so they never overwrite real prices.
