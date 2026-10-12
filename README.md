@@ -6,8 +6,8 @@ A daily market data pipeline: Python and Airflow ingest stock prices, validate t
 
 - [x] **Phase 1: Database design** (`sql/`)
 - [x] Phase 2: Python ETL (extract → validate → load → metrics)
-- [ ] Phase 3: Airflow orchestration
-- [ ] Phase 4: FastAPI REST API
+- [x] Phase 3: Airflow orchestration
+- [x] Phase 4: FastAPI REST API
 - [ ] Phase 5: Docker Compose, tests, polish
 
 ## Database schema
