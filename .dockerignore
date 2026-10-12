@@ -1,0 +1,8 @@
+# Files Docker should never copy into an image
+.env
+.venv/
+.git/
+__pycache__/
+*.pyc
+backups/
+*.zip

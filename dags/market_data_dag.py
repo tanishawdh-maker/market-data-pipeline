@@ -7,7 +7,7 @@ start_run -> get_symbols -> process_ticker (one task per stock) -> compute_metri
 from datetime import timedelta
 
 import pendulum
-from airflow.sdk import dag, task
+from airflow.sdk import Param, dag, get_current_context, task
 from airflow.sdk.exceptions import AirflowFailException
 
 default_args = {
@@ -25,6 +25,11 @@ default_args = {
     max_active_runs=1,                     # never run two copies at once; extra runs wait in a queue
     default_args=default_args,
     tags=["market-data", "etl"],
+    params={
+        # Shown as a form when you trigger the DAG by hand. Scheduled runs use the default.
+        "period": Param("1mo", type="string", enum=["5d", "1mo", "3mo", "6mo", "1y", "2y"],
+                        description="How much price history to download (use 1y for a backfill)"),
+    },
     doc_md=__doc__,
 )
 def market_data_pipeline():
@@ -55,7 +60,8 @@ def market_data_pipeline():
         from load import load_prices, log_rejections
         from transform import clean_prices, validate
 
-        raw = fetch_prices(symbol, "1mo")
+        period = get_current_context()["params"]["period"]
+        raw = fetch_prices(symbol, period)
         good, rejected = validate(clean_prices(raw, symbol))
 
         with get_connection() as conn:
