@@ -1,0 +1,29 @@
+services:
+  airflow:
+    build:
+      context: .
+      dockerfile: airflow/Dockerfile
+    container_name: airflow
+    command: standalone            # scheduler + web UI + DAG processor in one container (for local development)
+    ports:
+      - "8080:8080"                # web UI at http://localhost:8080
+    environment:
+      # Airflow keeps its own records in a separate "airflow" database inside market-pg
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@market-pg:5432/airflow
+      AIRFLOW__CORE__LOAD_EXAMPLES: "False"                    # hide Airflow's ~50 example DAGs
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_ALL_ADMINS: "True"    # no login screen (local laptop only!)
+      # Settings for our own pipeline code
+      PYTHONPATH: /opt/airflow/etl                             # lets the DAG import db.py, load.py, ...
+      DB_HOST: market-pg                                       # the database container's name
+      DB_PORT: "5432"
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./dags:/opt/airflow/dags   # your DAG files, shared live with the container
+      - ./etl:/opt/airflow/etl     # your pipeline code, shared live with the container
+
+networks:
+  default:
+    name: market-net
+    external: true                 # use the network we created by hand, which market-pg is also on
